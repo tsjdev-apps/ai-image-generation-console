@@ -54,7 +54,7 @@ A powerful and user-friendly console application for generating images using AI 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/ImageGenerationConsole.git
+   git clone https://github.com/tsjdev-apps/ai-image-generation-console.git
    cd ImageGenerationConsole
    ```
 
@@ -67,7 +67,7 @@ A powerful and user-friendly console application for generating images using AI 
 1. **Run the application**
 
    ```bash
-   dotnet run --project ImageGenerationConsole
+   dotnet run
    ```
 
 ## 🧭 Usage

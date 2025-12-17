@@ -46,6 +46,12 @@ internal static class Statics
         /// </summary>
         public const string GptImage1Mini
             = "gpt-image-1-mini";
+
+        /// <summary>
+        /// GPT-Image-1.5 model type identifier.
+        /// </summary>
+        public const string GptImage15
+            = "gpt-image-1.5";
     }
 
     /// <summary>
@@ -96,7 +102,7 @@ internal static class Statics
             = "[yellow]Enter your Azure OpenAI deployment names " +
               "(format: 'deploymentName:modelType', comma-separated):[/]\n" +
               "[dim]Example: myDallE:dall-e-3,myGptImage:gpt-image-1[/]\n" +
-              "[dim]Supported model types: dall-e-3, gpt-image-1, gpt-image-1-mini[/]";
+              "[dim]Supported model types: dall-e-3, gpt-image-1, gpt-image-1-mini, gpt-image-1.5[/]";
     }
 
     /// <summary>

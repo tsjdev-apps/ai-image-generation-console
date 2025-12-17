@@ -179,6 +179,11 @@ The application handles various error scenarios gracefully:
 - 🌐 **Network Errors**: Connection issues during image download
 - 🗂️ **File System Errors**: Permission or I/O issues when saving files
 
+## ✍️ Blog Post
+If you are more interested into details, please see the following posts on [medium.com](https://medium.com/@tsjdevapps) or in my [personal blog](https://www.tsjdev-apps.de):
+
+- [Building a Multi-Model Image Generation Console App with Azure OpenAI and OpenAI](https://medium.com/medialesson/building-a-multi-model-image-generation-console-app-with-azure-openai-and-openai-fa5b9b790e7e)
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.

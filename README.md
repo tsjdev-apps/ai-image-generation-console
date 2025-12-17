@@ -9,7 +9,7 @@ A powerful and user-friendly console application for generating images using AI 
 ## ✨ Features
 
 - 🌐 **Multi-Provider Support**: Seamlessly switch between Azure OpenAI and OpenAI
-- 🧠 **Multiple Model Support**: Generate images using DALL-E 3, GPT-Image-1, and GPT-Image-1-Mini
+- 🧠 **Multiple Model Support**: Generate images using DALL-E 3, GPT-Image-1, GPT-Image-1-Mini, and GPT-Image-1.5
 - ⚙️ **Customizable Settings**: Configure image size, quality, and style per model
 - 💾 **Automatic Saving**: Images are automatically saved to temporary files with timestamps
 - ⏱️ **Performance Tracking**: Real-time generation time tracking for each model
@@ -83,6 +83,7 @@ A powerful and user-friendly console application for generating images using AI 
      - `dall-e-3`
      - `gpt-image-1`
      - `gpt-image-1-mini`
+     - `gpt-image-1.5`
 5. Enter your image generation prompt
 6. Wait for the images to be generated and saved
 
@@ -127,6 +128,12 @@ The console will display clickable file paths for easy access to the generated i
 
 - **Size**: 1536x1024
 - **Quality**: Medium
+- **Format**: Bytes (Azure) / Default (OpenAI)
+
+### GPT-Image-1.5
+
+- **Size**: 1536x1024
+- **Quality**: Default
 - **Format**: Bytes (Azure) / Default (OpenAI)
 
 ## 🏗️ Architecture

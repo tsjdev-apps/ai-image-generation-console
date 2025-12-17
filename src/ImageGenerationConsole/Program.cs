@@ -110,7 +110,9 @@ else
     }
 
     // Allow user to select which models to use
-    List<string> availableModels = [ModelTypes.DallE3, ModelTypes.GptImage1, ModelTypes.GptImage1Mini];
+    List<string> availableModels =
+        [ModelTypes.DallE3, ModelTypes.GptImage1, ModelTypes.GptImage1Mini, ModelTypes.GptImage15];
+
     List<string> selectedModels = ConsoleHelper.SelectMultipleFromOptions(
         availableModels,
         Prompts.SelectModels,
@@ -245,6 +247,10 @@ static ImageGenerationOptions? GetImageGenerationOptions(string modelType)
         {
             Size = GeneratedImageSize.W1536xH1024,
             Quality = GeneratedImageQuality.Medium
+        },
+        ModelTypes.GptImage15 => new()
+        {
+            Size = GeneratedImageSize.W1536xH1024
         },
         _ => null
     };

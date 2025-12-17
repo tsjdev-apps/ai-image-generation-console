@@ -38,7 +38,13 @@ A powerful and user-friendly console application for generating images using AI 
 
 ### Generation Results
 
-![console-05](docs/05-console.png)
+![console-05-1](docs/05-console-1.png)
+
+**DALL-E 3**
+
+![console-05-2](docs/05-console-2.png)
+
+**GPT-Image-1.5**
 
 ## 🚀 Getting Started
 

@@ -5,6 +5,7 @@ A powerful and user-friendly console application for generating images using AI 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)
 ![C#](https://img.shields.io/badge/C%23-14.0-brightgreen.svg)
+[![Release](https://github.com/tsjdev-apps/ai-image-generation-console/actions/workflows/release.yml/badge.svg)](https://github.com/tsjdev-apps/ai-image-generation-console/actions/workflows/release.yml)
 
 ## ✨ Features
 

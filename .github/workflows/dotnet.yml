@@ -1,25 +1,33 @@
-name: Build .NET
+name: Build .NET Console Application
 
+# Limit GITHUB_TOKEN permissions following the principle of least privilege
+permissions:
+  contents: read
+
+# Trigger this workflow on pull requests targeting the main branch
 on:
   pull_request:
     branches: [ "main" ]
 
 jobs:
   build:
-
+    # Use the latest Ubuntu runner for the build process
     runs-on: ubuntu-latest
 
     steps:
-
-    - uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        global-json-file: global.json
-
-    - name: Restore dependencies
-      run: dotnet restore
-
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
+      # Check out the repository code
+      - uses: actions/checkout@v6
+      
+      # Configure the .NET SDK version based on the global.json file
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      
+      # Restore NuGet packages and dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      # Build the project in Release configuration without re-running restore
+      - name: Build
+        run: dotnet build --no-restore --configuration Release

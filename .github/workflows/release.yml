@@ -43,40 +43,40 @@ jobs:
             artifact_file: ImageGenerationConsole
 
     steps:
-    - uses: actions/checkout@v6
-
-    - name: Extract version from tag
-      id: version
-      run: |
-        if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
-          VERSION="${GITHUB_REF#refs/tags/v}"
-        else
-          VERSION="0.0.1-dev"
-        fi
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-      shell: bash
-
-    # Install SDK from global.json
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
-      with:
-        global-json-file: global.json
-
-    # Restore NuGet packages
-    - name: Restore dependencies
-      run: dotnet restore
-
-    # Produce a self-contained single-file binary
-    - name: Publish (Console App)
-      run: dotnet publish ${{ matrix.project }} -c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o ./publish /p:Version=${{ steps.version.outputs.version }}
-
-    # Publish build output for this platform
-    - name: Upload artifact
-      uses: actions/upload-artifact@v6
-      with:
-        name: ${{ matrix.artifact }}
-        path: ./publish/${{ matrix.artifact_file }}
-        if-no-files-found: error
+      - uses: actions/checkout@v6
+      
+      - name: Extract version from tag
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION="0.0.1-dev"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        shell: bash
+      
+      # Install SDK from global.json
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      
+      # Restore NuGet packages
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      # Produce a self-contained single-file binary
+      - name: Publish (Console App)
+        run: dotnet publish ${{ matrix.project }} -c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o ./publish /p:Version=${{ steps.version.outputs.version }}
+      
+      # Publish build output for this platform
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.artifact }}
+          path: ./publish/${{ matrix.artifact_file }}
+          if-no-files-found: error
 
   release:
     name: Create Release
@@ -85,33 +85,33 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
 
     steps:
-    - uses: actions/checkout@v6
-
-    # Gather all per-platform artifacts
-    - name: Download all artifacts
-      uses: actions/download-artifact@v7
-      with:
-        path: ./artifacts
-
-    # Normalize artifact names for release upload
-    - name: Prepare release artifacts
-      run: |
-        mkdir -p ./release
-        mv ./artifacts/ImageGenerationConsole-win-x64/ImageGenerationConsole.exe ./release/ImageGenerationConsole-win-x64.exe
-        mv ./artifacts/ImageGenerationConsole-linux-x64/ImageGenerationConsole ./release/ImageGenerationConsole-linux-x64
-        mv ./artifacts/ImageGenerationConsole-osx-x64/ImageGenerationConsole ./release/ImageGenerationConsole-osx-x64
-        mv ./artifacts/ImageGenerationConsole-osx-arm64/ImageGenerationConsole ./release/ImageGenerationConsole-osx-arm64
-
-    - name: Create Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |
-          ./release/ImageGenerationConsole-win-x64.exe
-          ./release/ImageGenerationConsole-linux-x64
-          ./release/ImageGenerationConsole-osx-x64
-          ./release/ImageGenerationConsole-osx-arm64
-        draft: false
-        prerelease: false
-        generate_release_notes: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v6
+      
+      # Gather all per-platform artifacts
+      - name: Download all artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: ./artifacts
+      
+      # Normalize artifact names for release upload
+      - name: Prepare release artifacts
+        run: |
+          mkdir -p ./release
+          mv ./artifacts/ImageGenerationConsole-win-x64/ImageGenerationConsole.exe ./release/ImageGenerationConsole-win-x64.exe
+          mv ./artifacts/ImageGenerationConsole-linux-x64/ImageGenerationConsole ./release/ImageGenerationConsole-linux-x64
+          mv ./artifacts/ImageGenerationConsole-osx-x64/ImageGenerationConsole ./release/ImageGenerationConsole-osx-x64
+          mv ./artifacts/ImageGenerationConsole-osx-arm64/ImageGenerationConsole ./release/ImageGenerationConsole-osx-arm64
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ./release/ImageGenerationConsole-win-x64.exe
+            ./release/ImageGenerationConsole-linux-x64
+            ./release/ImageGenerationConsole-osx-x64
+            ./release/ImageGenerationConsole-osx-arm64
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

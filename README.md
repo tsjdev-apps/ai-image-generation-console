@@ -1,6 +1,6 @@
 # AI Image Generation Console
 
-A powerful and user-friendly console application for generating images using AI models from **Azure OpenAI** and **OpenAI**. Built with .NET 10 and featuring an elegant terminal UI powered by Spectre.Console.
+A powerful and user-friendly console application for generating images using AI models from **Azure OpenAI**, **OpenAI**, and **Google AI (Gemini)**. Built with .NET 10 and featuring an elegant terminal UI powered by Spectre.Console.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)
@@ -9,8 +9,8 @@ A powerful and user-friendly console application for generating images using AI 
 
 ## ✨ Features
 
-- 🌐 **Multi-Provider Support**: Seamlessly switch between Azure OpenAI and OpenAI
-- 🧠 **Multiple Model Support**: Generate images using DALL-E 3, GPT-Image-1, GPT-Image-1-Mini, and GPT-Image-1.5
+- 🌐 **Multi-Provider Support**: Seamlessly switch between Azure OpenAI, OpenAI, and Google AI (Gemini)
+- 🧠 **Multiple Model Support**: Generate images using DALL-E 3, GPT-Image-1, GPT-Image-1-Mini, GPT-Image-1.5, Gemini 2.5 Flash Image, and Gemini 3 Pro Image Preview
 - ⚙️ **Customizable Settings**: Configure image size, quality, and style per model
 - 💾 **Automatic Saving**: Images are automatically saved to temporary files with timestamps
 - ⏱️ **Performance Tracking**: Real-time generation time tracking for each model
@@ -55,6 +55,7 @@ A powerful and user-friendly console application for generating images using AI 
 - An API key from either:
   - [Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-foundry/models/openai/)
   - [OpenAI Platform](https://platform.openai.com/)
+  - [Google AI (Gemini)](https://ai.google.dev/)
 
 ### Installation
 
@@ -104,6 +105,16 @@ A powerful and user-friendly console application for generating images using AI 
 4. Enter your image generation prompt
 5. Wait for the images to be generated and saved
 
+### Google AI (Gemini)
+
+1. Select **Google AI** as your provider
+2. Enter your Google AI API key (input will be masked)
+3. Select one or more Gemini image models:
+   - `gemini-2.5-flash-image`
+   - `gemini-3-pro-image-preview`
+4. Enter your image generation prompt
+5. Wait for the images to be generated and saved
+
 ### Output
 
 Generated images are saved to your system's temporary directory with the following naming convention:
@@ -149,11 +160,12 @@ The application is structured into three main components:
 
 ```plaintext
 ImageGenerationConsole/
-📄 Program.cs              # Main application logic and orchestration
+📄 Program.cs                # Main application logic and orchestration
 📂 Helpers/
-   📄 ConsoleHelper.cs    # UI utilities using Spectre.Console
+   📄 ConsoleHelper.cs       # UI utilities using Spectre.Console
+   📄 GoogleImageProvider.cs # Google Gemini REST image helper
 📂 Utils/
-   📄 Statics.cs          # Centralized string constants and messages
+   📄 Statics.cs          ´  # Centralized string constants and messages
 ```
 
 ### Key Design Principles

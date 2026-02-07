@@ -165,7 +165,7 @@ ImageGenerationConsole/
    📄 ConsoleHelper.cs       # UI utilities using Spectre.Console
    📄 GoogleImageProvider.cs # Google Gemini REST image helper
 📂 Utils/
-   📄 Statics.cs          ´  # Centralized string constants and messages
+   📄 Statics.cs             # Centralized string constants and messages
 ```
 
 ### Key Design Principles

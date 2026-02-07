@@ -12,129 +12,156 @@ using static ImageGenerationConsole.Utils.Statics;
 // Display application header
 ConsoleHelper.ShowHeader();
 
-// Prompt user to select AI provider (Azure OpenAI or OpenAI)
+// Prompt user to select AI provider (Azure OpenAI, OpenAI, or Google AI)
 string provider = ConsoleHelper.SelectFromOptions(
-    [Providers.AzureOpenAI, Providers.OpenAI],
+    [Providers.AzureOpenAI, Providers.OpenAI, Providers.GoogleAI],
     Prompts.SelectProvider);
 
 // Initialize client variables
 OpenAIClient? openAiClient = null;
 Dictionary<string, (string deploymentName, ImageGenerationOptions options)> modelConfigurations = [];
+string? googleApiKey = null;
+List<string> googleModels = [];
 
-// Configure Azure OpenAI provider
-if (provider == Providers.AzureOpenAI)
+switch (provider)
 {
-    try
-    {
-        // Collect Azure OpenAI credentials
-        string azureAiEndpoint = ConsoleHelper.GetUrlFromConsole(
-            Prompts.EnterAzureEndpoint);
-        string azureAiKey = ConsoleHelper.GetSecretFromConsole(
-            Prompts.EnterAzureApiKey);
-
-        // Initialize Azure OpenAI client
-        openAiClient = new AzureOpenAIClient(
-            new Uri(azureAiEndpoint),
-            new ApiKeyCredential(azureAiKey));
-    }
-    catch (Exception ex)
-    {
-        ExitWithError(string.Format(ErrorMessages.ErrorInitializingAzureClient, ex.Message));
-        return;
-    }
-
-    // Collect deployment names and model types
-    ConsoleHelper.ShowHeader();
-    AnsiConsole.MarkupLine(Prompts.EnterDeployments);
-    AnsiConsole.WriteLine();
-
-    string deploymentInput = ConsoleHelper.GetStringFromConsole(
-        string.Empty,
-        validateLength: false,
-        showHeader: false);
-
-    var deployments = deploymentInput.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-    // Parse and configure each deployment
-    foreach (var deployment in deployments)
-    {
-        var parts = deployment.Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-        // Validate deployment format
-        if (parts.Length != 2)
+    case Providers.AzureOpenAI:
+        try
         {
-            ConsoleHelper.WriteError(string.Format(ErrorMessages.InvalidDeploymentFormat, deployment));
-            continue;
+            // Collect Azure OpenAI credentials
+            string azureAiEndpoint = ConsoleHelper.GetUrlFromConsole(
+                Prompts.EnterAzureEndpoint);
+            string azureAiKey = ConsoleHelper.GetSecretFromConsole(
+                Prompts.EnterAzureApiKey);
+
+            // Initialize Azure OpenAI client
+            openAiClient = new AzureOpenAIClient(
+                new Uri(azureAiEndpoint),
+                new ApiKeyCredential(azureAiKey));
+        }
+        catch (Exception ex)
+        {
+            ExitWithError(string.Format(ErrorMessages.ErrorInitializingAzureClient, ex.Message));
+            return;
         }
 
-        string deploymentName = parts[0];
-        string modelType = parts[1].ToLowerInvariant();
+        // Collect deployment names and model types
+        ConsoleHelper.ShowHeader();
+        AnsiConsole.MarkupLine(Prompts.EnterDeployments);
+        AnsiConsole.WriteLine();
 
-        // Get model-specific image generation options
-        ImageGenerationOptions? options = GetImageGenerationOptions(modelType);
+        string deploymentInput = ConsoleHelper.GetStringFromConsole(
+            string.Empty,
+            validateLength: false,
+            showHeader: false);
 
-        // Validate model type
-        if (options == null)
+        var deployments = deploymentInput.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        // Parse and configure each deployment
+        foreach (var deployment in deployments)
         {
-            ConsoleHelper.WriteError(string.Format(ErrorMessages.UnknownModelType, modelType, deploymentName));
-            continue;
+            var parts = deployment.Split(':', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            // Validate deployment format
+            if (parts.Length != 2)
+            {
+                ConsoleHelper.WriteError(string.Format(ErrorMessages.InvalidDeploymentFormat, deployment));
+                continue;
+            }
+
+            string deploymentName = parts[0];
+            string modelType = parts[1].ToLowerInvariant();
+
+            // Get model-specific image generation options
+            ImageGenerationOptions? options = GetImageGenerationOptions(modelType);
+
+            // Validate model type
+            if (options == null)
+            {
+                ConsoleHelper.WriteError(string.Format(ErrorMessages.UnknownModelType, modelType, deploymentName));
+                continue;
+            }
+
+            modelConfigurations[deploymentName] = (deploymentName, options);
         }
 
-        modelConfigurations[deploymentName] = (deploymentName, options);
-    }
+        // Ensure at least one valid deployment was configured
+        if (modelConfigurations.Count == 0)
+        {
+            ExitWithError(ErrorMessages.NoValidDeployments);
+            return;
+        }
 
-    // Ensure at least one valid deployment was configured
-    if (modelConfigurations.Count == 0)
-    {
-        ExitWithError(ErrorMessages.NoValidDeployments);
-        return;
-    }
-}
-// Configure OpenAI provider
-else
-{
-    try
-    {
-        // Collect OpenAI API key
-        string openAiKey = ConsoleHelper.GetSecretFromConsole(
-            Prompts.EnterOpenAIApiKey,
+        break;
+
+    case Providers.GoogleAI:
+        // Collect Google AI API key
+        googleApiKey = ConsoleHelper.GetSecretFromConsole(
+            Prompts.EnterGoogleApiKey,
             showHeader: true);
 
-        // Initialize OpenAI client
-        openAiClient = new OpenAIClient(openAiKey);
-    }
-    catch (Exception ex)
-    {
-        ExitWithError(string.Format(ErrorMessages.ErrorInitializingOpenAIClient, ex.Message));
-        return;
-    }
+        // Allow user to select Google Gemini image models
+        List<string> availableGoogleModels =
+            [ModelTypes.GeminiFlashImage, ModelTypes.GeminiProImagePreview];
 
-    // Allow user to select which models to use
-    List<string> availableModels =
-        [ModelTypes.DallE3, ModelTypes.GptImage1, ModelTypes.GptImage1Mini, ModelTypes.GptImage15];
+        googleModels = ConsoleHelper.SelectMultipleFromOptions(
+            availableGoogleModels,
+            Prompts.SelectGoogleModels,
+            showHeader: true);
 
-    List<string> selectedModels = ConsoleHelper.SelectMultipleFromOptions(
-        availableModels,
-        Prompts.SelectModels,
-        showHeader: true);
-
-    // Ensure at least one model is selected
-    if (selectedModels.Count == 0)
-    {
-        ExitWithError(ErrorMessages.NoModelsSelected);
-        return;
-    }
-
-    // Configure options for each selected model
-    foreach (var model in selectedModels)
-    {
-        ImageGenerationOptions? options = GetImageGenerationOptions(model);
-
-        if (options != null)
+        if (googleModels.Count == 0)
         {
-            modelConfigurations[model] = (model, options);
+            ExitWithError(ErrorMessages.NoModelsSelected);
+            return;
         }
-    }
+
+        break;
+
+    default:
+        try
+        {
+            // Collect OpenAI API key
+            string openAiKey = ConsoleHelper.GetSecretFromConsole(
+                Prompts.EnterOpenAIApiKey,
+                showHeader: true);
+
+            // Initialize OpenAI client
+            openAiClient = new OpenAIClient(openAiKey);
+        }
+        catch (Exception ex)
+        {
+            ExitWithError(string.Format(ErrorMessages.ErrorInitializingOpenAIClient, ex.Message));
+            return;
+        }
+
+        // Allow user to select which models to use
+        List<string> availableModels =
+            [ModelTypes.DallE3, ModelTypes.GptImage1, ModelTypes.GptImage1Mini, ModelTypes.GptImage15];
+
+        List<string> selectedModels = ConsoleHelper.SelectMultipleFromOptions(
+            availableModels,
+            Prompts.SelectModels,
+            showHeader: true);
+
+        // Ensure at least one model is selected
+        if (selectedModels.Count == 0)
+        {
+            ExitWithError(ErrorMessages.NoModelsSelected);
+            return;
+        }
+
+        // Configure options for each selected model
+        foreach (var model in selectedModels)
+        {
+            ImageGenerationOptions? options = GetImageGenerationOptions(model);
+
+            if (options != null)
+            {
+                modelConfigurations[model] = (model, options);
+            }
+        }
+
+        break;
 }
 
 // Collect image generation prompt from user
@@ -151,59 +178,113 @@ ConsoleHelper.WriteMessage(string.Empty);
 int successCount = 0;
 int failureCount = 0;
 
-// Generate images for each configured model
-foreach (var (modelKey, (deploymentName, options)) in modelConfigurations)
+if (provider == Providers.GoogleAI)
 {
-    try
+    foreach (var modelKey in googleModels)
     {
-        // Display generation status with animated spinner
-        await AnsiConsole.Status()
-            .StartAsync(string.Format(Messages.GeneratingImage, modelKey), async ctx =>
-            {
-                try
+        try
+        {
+            await AnsiConsole.Status()
+                .StartAsync(string.Format(Messages.GeneratingImage, modelKey), async ctx =>
                 {
-                    // Start timer for generation duration
-                    var stopwatch = Stopwatch.StartNew();
+                    try
+                    {
+                        var stopwatch = Stopwatch.StartNew();
 
-                    // Get appropriate image client
-                    ImageClient imageClient = openAiClient!.GetImageClient(deploymentName);
+                        byte[] imageBytes = await GoogleImageProvider.GenerateImageAsync(googleApiKey!, modelKey, imagePrompt);
 
-                    // Generate image using the API
-                    ClientResult<GeneratedImage> imageResult =
-                        await imageClient.GenerateImageAsync(imagePrompt, options);
+                        stopwatch.Stop();
 
-                    stopwatch.Stop();
+                        ConsoleHelper.WriteMessage(string.Format(Messages.GenerationCompleted, stopwatch.ElapsedMilliseconds, stopwatch.Elapsed.TotalSeconds));
 
-                    // Display generation time
-                    ConsoleHelper.WriteMessage(string.Format(Messages.GenerationCompleted, stopwatch.ElapsedMilliseconds, stopwatch.Elapsed.TotalSeconds));
+                        await GoogleImageProvider.SaveImageToTempFileAsync(imageBytes, modelKey);
 
-                    // Save the generated image to a temporary file
-                    await SaveImageToTempFileAsync(imageResult.Value, modelKey);
+                        successCount++;
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        failureCount++;
+                        string status = ex.StatusCode.HasValue ? ((int)ex.StatusCode.Value).ToString() : "unknown";
+                        ConsoleHelper.WriteError(string.Format(ErrorMessages.GoogleApiRequestFailed, status, ex.Message));
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        failureCount++;
+                        ConsoleHelper.WriteError(string.Format(ErrorMessages.GoogleInvalidResponse, modelKey));
+                        ConsoleHelper.WriteError(ex.Message);
+                    }
+                    catch (Exception ex)
+                    {
+                        failureCount++;
+                        ConsoleHelper.WriteError(string.Format(ErrorMessages.UnexpectedError, modelKey, ex.Message));
+                    }
+                });
+        }
+        catch (Exception ex)
+        {
+            failureCount++;
+            ConsoleHelper.WriteError(string.Format(ErrorMessages.FailedToStartGeneration, modelKey, ex.Message));
+        }
 
-                    successCount++;
-                }
-                catch (ClientResultException ex)
-                {
-                    // Handle API-specific errors
-                    failureCount++;
-                    HandleApiError(ex, modelKey, deploymentName);
-                }
-                catch (Exception ex)
-                {
-                    // Handle unexpected errors
-                    failureCount++;
-                    ConsoleHelper.WriteError(string.Format(ErrorMessages.UnexpectedError, modelKey, ex.Message));
-                }
-            });
+        ConsoleHelper.WriteMessage(string.Empty);
     }
-    catch (Exception ex)
+}
+else
+{
+    // Generate images for each configured model
+    foreach (var (modelKey, (deploymentName, options)) in modelConfigurations)
     {
-        // Handle errors during status display initialization
-        failureCount++;
-        ConsoleHelper.WriteError(string.Format(ErrorMessages.FailedToStartGeneration, modelKey, ex.Message));
-    }
+        try
+        {
+            // Display generation status with animated spinner
+            await AnsiConsole.Status()
+                .StartAsync(string.Format(Messages.GeneratingImage, modelKey), async ctx =>
+                {
+                    try
+                    {
+                        // Start timer for generation duration
+                        var stopwatch = Stopwatch.StartNew();
 
-    ConsoleHelper.WriteMessage(string.Empty);
+                        // Get appropriate image client
+                        ImageClient imageClient = openAiClient!.GetImageClient(deploymentName);
+
+                        // Generate image using the API
+                        ClientResult<GeneratedImage> imageResult =
+                            await imageClient.GenerateImageAsync(imagePrompt, options);
+
+                        stopwatch.Stop();
+
+                        // Display generation time
+                        ConsoleHelper.WriteMessage(string.Format(Messages.GenerationCompleted, stopwatch.ElapsedMilliseconds, stopwatch.Elapsed.TotalSeconds));
+
+                        // Save the generated image to a temporary file
+                        await SaveImageToTempFileAsync(imageResult.Value, modelKey);
+
+                        successCount++;
+                    }
+                    catch (ClientResultException ex)
+                    {
+                        // Handle API-specific errors
+                        failureCount++;
+                        HandleApiError(ex, modelKey, deploymentName);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle unexpected errors
+                        failureCount++;
+                        ConsoleHelper.WriteError(string.Format(ErrorMessages.UnexpectedError, modelKey, ex.Message));
+                    }
+                });
+        }
+        catch (Exception ex)
+        {
+            // Handle errors during status display initialization
+            failureCount++;
+            ConsoleHelper.WriteError(string.Format(ErrorMessages.FailedToStartGeneration, modelKey, ex.Message));
+        }
+
+        ConsoleHelper.WriteMessage(string.Empty);
+    }
 }
 
 // Display generation summary

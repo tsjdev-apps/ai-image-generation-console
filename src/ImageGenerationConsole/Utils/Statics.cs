@@ -22,6 +22,12 @@ internal static class Statics
         /// </summary>
         public const string OpenAI
             = "OpenAI";
+
+        /// <summary>
+        /// Google AI provider name.
+        /// </summary>
+        public const string GoogleAI
+            = "Google AI";
     }
 
     /// <summary>
@@ -52,6 +58,18 @@ internal static class Statics
         /// </summary>
         public const string GptImage15
             = "gpt-image-1.5";
+
+        /// <summary>
+        /// Gemini 2.5 Flash Image model identifier.
+        /// </summary>
+        public const string GeminiFlashImage
+            = "gemini-2.5-flash-image";
+
+        /// <summary>
+        /// Gemini 3 Pro Image Preview model identifier.
+        /// </summary>
+        public const string GeminiProImagePreview
+            = "gemini-3-pro-image-preview";
     }
 
     /// <summary>
@@ -84,6 +102,12 @@ internal static class Statics
             = "[yellow]Enter your OpenAI API key:[/]";
 
         /// <summary>
+        /// Prompt to enter Google AI API key.
+        /// </summary>
+        public const string EnterGoogleApiKey
+            = "[yellow]Enter your Google AI API key:[/]";
+
+        /// <summary>
         /// Prompt to enter the image generation prompt.
         /// </summary>
         public const string EnterImagePrompt
@@ -94,6 +118,12 @@ internal static class Statics
         /// </summary>
         public const string SelectModels
             = "[yellow]Select the models you want to use (Space to select, Enter to confirm):[/]";
+
+        /// <summary>
+        /// Prompt to select Google AI models.
+        /// </summary>
+        public const string SelectGoogleModels
+            = "[yellow]Select the Google AI models you want to use (Space to select, Enter to confirm):[/]";
 
         /// <summary>
         /// Prompt to enter Azure OpenAI deployment names and model types.
@@ -183,7 +213,7 @@ internal static class Statics
         public const string UnknownModelType
             = "Unknown model type: '{0}'. " +
               "Supported types: dall-e-3, gpt-image-1, " +
-              "gpt-image-1-mini. Skipping deployment '{1}'...";
+              "gpt-image-1-mini, gpt-image-1.5. Skipping deployment '{1}'...";
 
         /// <summary>
         /// Message indicating no valid deployments were configured.
@@ -264,5 +294,23 @@ internal static class Statics
         /// </summary>
         public const string UnexpectedSaveError
             = "Error: Unexpected error saving image for {0}: {1}";
+
+        /// <summary>
+        /// Message indicating Google AI request failed.
+        /// </summary>
+        public const string GoogleApiRequestFailed
+            = "Google AI request failed ({0}): {1}";
+
+        /// <summary>
+        /// Message indicating Google AI response could not be parsed.
+        /// </summary>
+        public const string GoogleInvalidResponse
+            = "Unable to parse Google AI response for {0}.";
+
+        /// <summary>
+        /// Message indicating missing image data in Google AI response.
+        /// </summary>
+        public const string GoogleNoImageData
+            = "No image data returned for {0}.";
     }
 }
